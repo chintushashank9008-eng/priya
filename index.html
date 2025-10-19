@@ -211,12 +211,13 @@
             Lv💗u Priya, Happy Diwali 🪔 – meri dil-wali 💗🫠✨
         </div>
         <div class="audio-controls">
-            <button id="muteBtn">Mute Music</button>
+            <button id="playBtn">Play Music</button>
+            <button id="muteBtn" style="display: none;">Mute Music</button>
         </div>
         <div class="footer">
             Made with ❤️ by pranay shashank
         </div>
-        <!-- Audio Element with Local Song File (Download and Place in Same Folder) -->
+        <!-- Audio Element -->
         <audio id="bgMusic" loop>
             <source src="kumkumala.mp3" type="audio/mpeg">
             Your browser does not support the audio element.
@@ -237,9 +238,6 @@
             if (username === 'priya' && password === 'pranay') {
                 login.style.display = 'none';
                 main.style.display = 'flex';
-                // Play the audio after successful login (user interaction allows it)
-                const audio = document.getElementById('bgMusic');
-                audio.play().catch(error => console.log('Audio play failed:', error));
                 initGreeting();
             } else {
                 error.textContent = 'Invalid username or password!';
@@ -293,9 +291,17 @@
                 setTimeout(() => heart.remove(), 6000);
             }, 2000);
 
-            // Audio mute/unmute
+            // Audio play/mute controls
             const audio = document.getElementById('bgMusic');
+            const playBtn = document.getElementById('playBtn');
             const muteBtn = document.getElementById('muteBtn');
+
+            playBtn.addEventListener('click', () => {
+                audio.play().catch(error => console.log('Audio play failed:', error));
+                playBtn.style.display = 'none';
+                muteBtn.style.display = 'inline';
+            });
+
             muteBtn.addEventListener('click', () => {
                 if (audio.muted) {
                     audio.muted = false;
@@ -309,4 +315,3 @@
     </script>
 </body>
 </html>
-
