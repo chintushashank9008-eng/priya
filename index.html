@@ -93,9 +93,9 @@
             margin-bottom: 2rem;
         }
 
-        /* Main message (hidden initially) */
+        /* Main message (starts empty for typewriter) */
         .message {
-            display: none; /* Hidden until countdown ends */
+            display: none; /* Hidden until typing starts */
             text-align: center;
             font-size: 3rem;
             font-weight: 700;
@@ -258,9 +258,7 @@
     <div class="main-content" id="main">
         <div class="post-login-countdown" id="postCountdown">5</div>
         <div class="stars" id="stars"></div>
-        <div class="message">
-            Lv💗u Priya, Happy Diwali 🪔 – meri dil-wali 💗🫠✨
-        </div>
+        <div class="message" id="message"></div>
         <div class="audio-controls">
             <button id="playBtn">Play Music</button>
             <button id="muteBtn" style="display: none;">Mute Music</button>
@@ -284,6 +282,10 @@
         const loginBtn = document.getElementById('loginBtn');
         const error = document.getElementById('error');
         const postCountdownEl = document.getElementById('postCountdown');
+        const messageEl = document.getElementById('message');
+        const audio = document.getElementById('bgMusic');
+        const playBtn = document.getElementById('playBtn');
+        const muteBtn = document.getElementById('muteBtn');
 
         loginBtn.addEventListener('click', () => {
             const username = usernameInput.value.trim();
@@ -298,6 +300,18 @@
         });
 
         function startPostLoginCountdown() {
+            // Auto-play audio after login
+            audio.play().then(() => {
+                console.log('Audio started successfully after login');
+                playBtn.style.display = 'none';
+                muteBtn.style.display = 'inline';
+            }).catch(error => {
+                console.error('Audio autoplay failed:', error);
+                alert('Audio blocked by browser. Click "Play Music" to start.');
+                // Fallback: Show play button
+                playBtn.style.display = 'inline';
+            });
+
             let timeLeft = 5; // 5-second countdown
             postCountdownEl.textContent = timeLeft;
             const countdownInterval = setInterval(() => {
@@ -314,13 +328,30 @@
 
         function revealGreeting() {
             // Show hidden elements
-            document.querySelector('.message').style.display = 'block';
             document.querySelector('.stars').style.display = 'block';
             document.querySelector('.audio-controls').style.display = 'block';
             document.querySelector('.send-love-btn').style.display = 'block';
             document.querySelector('.footer').style.display = 'block';
+            // Start typewriter effect for message
+            startTypewriter();
             // Start animations and interactions
             initGreeting();
+        }
+
+        function startTypewriter() {
+            const fullText = "Lv💗u Priya, Happy Diwali 🪔 – meri dil-wali 💗🫠✨";
+            let index = 0;
+            const typeSpeed = 100; // ms per character
+            messageEl.style.display = 'block'; // Show the message div
+            const typeInterval = setInterval(() => {
+                if (index < fullText.length) {
+                    messageEl.textContent += fullText.charAt(index);
+                    index++;
+                } else {
+                    clearInterval(typeInterval);
+                    // Optionally start glow animation here if not already
+                }
+            }, typeSpeed);
         }
 
         function initGreeting() {
@@ -399,27 +430,11 @@
                 }
             });
 
-            // Audio play/mute controls
-            const audio = document.getElementById('bgMusic');
-            const playBtn = document.getElementById('playBtn');
-            const muteBtn = document.getElementById('muteBtn');
-
-            playBtn.addEventListener('click', () => {
-                audio.play().then(() => {
-                    console.log('Audio started successfully');
-                    playBtn.style.display = 'none';
-                    muteBtn.style.display = 'inline';
-                }).catch(error => {
-                    console.error('Audio play failed:', error);
-                    alert('Audio blocked by browser. Try clicking again or check settings.');
-                });
-            });
-
+            // Audio mute controls (play is already handled)
             muteBtn.addEventListener('click', () => {
                 audio.muted = !audio.muted;
                 muteBtn.textContent = audio.muted ? 'Unmute Music' : 'Mute Music';
             });
         }
     </script>
-</body>
-</html>
+</
