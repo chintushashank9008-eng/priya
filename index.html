@@ -83,8 +83,36 @@
             height: 100%;
         }
 
-        /* Twinkling stars */
+        /* Post-login Countdown */
+        .post-login-countdown {
+            font-size: 3rem;
+            text-align: center;
+            color: #ffd700;
+            text-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700;
+            z-index: 10;
+            margin-bottom: 2rem;
+        }
+
+        /* Main message (hidden initially) */
+        .message {
+            display: none; /* Hidden until countdown ends */
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            text-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700, 0 0 60px #ffd700;
+            animation: glow 2s infinite alternate;
+            z-index: 10;
+            margin-bottom: 2rem;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700, 0 0 60px #ffd700; }
+            to { text-shadow: 0 0 30px #ffa500, 0 0 50px #ffa500, 0 0 70px #ffa500; }
+        }
+
+        /* Twinkling stars (hidden initially) */
         .stars {
+            display: none; /* Hidden until countdown ends */
             position: absolute;
             top: 0;
             left: 0;
@@ -105,12 +133,14 @@
             50% { opacity: 1; transform: scale(1.2); }
         }
 
-        /* Floating diyas */
+        /* Floating diyas (hidden initially) */
         .diya {
+            display: none; /* Hidden until countdown ends */
             position: absolute;
             font-size: 2rem;
             animation: float 6s infinite ease-in-out;
             opacity: 0.8;
+            cursor: pointer;
         }
 
         @keyframes float {
@@ -118,23 +148,22 @@
             50% { transform: translateY(-20px) rotate(5deg); }
         }
 
-        /* Main message */
-        .message {
-            text-align: center;
-            font-size: 3rem;
-            font-weight: 700;
-            text-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700, 0 0 60px #ffd700;
-            animation: glow 2s infinite alternate;
-            z-index: 10;
-            margin-bottom: 2rem;
+        /* Sparkle explosion (for diya clicks) */
+        .sparkle-explosion {
+            position: absolute;
+            font-size: 1.5rem;
+            color: #ffd700;
+            animation: explode 1s ease-out forwards;
+            pointer-events: none;
         }
 
-        @keyframes glow {
-            from { text-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700, 0 0 60px #ffd700; }
-            to { text-shadow: 0 0 30px #ffa500, 0 0 50px #ffa500, 0 0 70px #ffa500; }
+        @keyframes explode {
+            0% { opacity: 1; transform: scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1.5) rotate(180deg); }
+            100% { opacity: 0; transform: scale(2) rotate(360deg); }
         }
 
-        /* Sparkles falling */
+        /* Sparkles falling (hidden initially) */
         .sparkle {
             position: absolute;
             font-size: 1.5rem;
@@ -148,7 +177,7 @@
             100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
         }
 
-        /* Glowing hearts */
+        /* Glowing hearts (hidden initially) */
         .heart {
             position: absolute;
             font-size: 2rem;
@@ -162,16 +191,37 @@
             50% { transform: scale(1.2); }
         }
 
-        /* Audio controls */
+        /* Audio controls (hidden initially) */
         .audio-controls {
+            display: none; /* Hidden until countdown ends */
             position: absolute;
             top: 20px;
             right: 20px;
             z-index: 20;
         }
 
-        /* Bottom note */
+        /* Send Love button (hidden initially) */
+        .send-love-btn {
+            display: none; /* Hidden until countdown ends */
+            background: rgba(255, 105, 180, 0.8);
+            border: none;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1rem;
+            margin-top: 1rem;
+            z-index: 20;
+        }
+
+        .send-love-btn:hover {
+            background: rgba(255, 105, 180, 1);
+        }
+
+        /* Bottom note (hidden initially) */
         .footer {
+            display: none; /* Hidden until countdown ends */
             position: absolute;
             bottom: 20px;
             font-size: 1rem;
@@ -181,7 +231,7 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            .message {
+            .message, .post-login-countdown {
                 font-size: 2rem;
             }
             .diya, .heart {
@@ -206,6 +256,7 @@
     </div>
 
     <div class="main-content" id="main">
+        <div class="post-login-countdown" id="postCountdown">5</div>
         <div class="stars" id="stars"></div>
         <div class="message">
             Lv💗u Priya, Happy Diwali 🪔 – meri dil-wali 💗🫠✨
@@ -214,6 +265,7 @@
             <button id="playBtn">Play Music</button>
             <button id="muteBtn" style="display: none;">Mute Music</button>
         </div>
+        <button class="send-love-btn" id="sendLoveBtn">Send Love 💗</button>
         <div class="footer">
             Made with ❤️ by pranay shashank
         </div>
@@ -231,6 +283,7 @@
         const passwordInput = document.getElementById('password');
         const loginBtn = document.getElementById('loginBtn');
         const error = document.getElementById('error');
+        const postCountdownEl = document.getElementById('postCountdown');
 
         loginBtn.addEventListener('click', () => {
             const username = usernameInput.value.trim();
@@ -238,11 +291,37 @@
             if (username === 'priya' && password === 'pranay') {
                 login.style.display = 'none';
                 main.style.display = 'flex';
-                initGreeting();
+                startPostLoginCountdown();
             } else {
                 error.textContent = 'Invalid username or password!';
             }
         });
+
+        function startPostLoginCountdown() {
+            let timeLeft = 5; // 5-second countdown
+            postCountdownEl.textContent = timeLeft;
+            const countdownInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    postCountdownEl.textContent = timeLeft;
+                } else {
+                    clearInterval(countdownInterval);
+                    postCountdownEl.style.display = 'none'; // Hide countdown
+                    revealGreeting(); // Show message and start animations
+                }
+            }, 1000);
+        }
+
+        function revealGreeting() {
+            // Show hidden elements
+            document.querySelector('.message').style.display = 'block';
+            document.querySelector('.stars').style.display = 'block';
+            document.querySelector('.audio-controls').style.display = 'block';
+            document.querySelector('.send-love-btn').style.display = 'block';
+            document.querySelector('.footer').style.display = 'block';
+            // Start animations and interactions
+            initGreeting();
+        }
 
         function initGreeting() {
             // Generate twinkling stars
@@ -257,7 +336,7 @@
                 starsContainer.appendChild(star);
             }
 
-            // Generate floating diyas
+            // Generate floating diyas (now clickable)
             for (let i = 0; i < 10; i++) {
                 const diya = document.createElement('div');
                 diya.className = 'diya';
@@ -265,6 +344,20 @@
                 diya.style.left = Math.random() * 90 + '%';
                 diya.style.top = Math.random() * 80 + '%';
                 diya.style.animationDelay = Math.random() * 6 + 's';
+                diya.style.display = 'block'; // Ensure visible
+                // Add click event for sparkle explosion
+                diya.addEventListener('click', (e) => {
+                    const rect = diya.getBoundingClientRect();
+                    for (let j = 0; j < Math.random() * 5 + 5; j++) { // 5-10 sparkles
+                        const sparkle = document.createElement('div');
+                        sparkle.className = 'sparkle-explosion';
+                        sparkle.textContent = '✨';
+                        sparkle.style.left = (rect.left + rect.width / 2 + (Math.random() - 0.5) * 100) + 'px';
+                        sparkle.style.top = (rect.top + rect.height / 2 + (Math.random() - 0.5) * 100) + 'px';
+                        main.appendChild(sparkle);
+                        setTimeout(() => sparkle.remove(), 1000);
+                    }
+                });
                 main.appendChild(diya);
             }
 
@@ -290,6 +383,21 @@
                 main.appendChild(heart);
                 setTimeout(() => heart.remove(), 6000);
             }, 2000);
+
+            // Send Love button event
+            const sendLoveBtn = document.getElementById('sendLoveBtn');
+            sendLoveBtn.addEventListener('click', () => {
+                for (let i = 0; i < Math.random() * 3 + 3; i++) { // 3-5 hearts
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.textContent = '💗';
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.top = Math.random() * 100 + '%';
+                    heart.style.animationDelay = Math.random() * 3 + 's';
+                    main.appendChild(heart);
+                    setTimeout(() => heart.remove(), 6000);
+                }
+            });
 
             // Audio play/mute controls
             const audio = document.getElementById('bgMusic');
